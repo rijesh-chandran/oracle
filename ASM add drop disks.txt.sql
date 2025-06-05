@@ -1,7 +1,3 @@
-ACTION PLAN
-===========
-Hello Devarshi,
-
 To perform this migration please find the steps below:
 
 01) Storage Team to provision the LUNS of the same size [it is important that the size in MB should be exactly matching] on the SAN
@@ -135,4 +131,4 @@ select * from v$asm_operation;
 
 18) Once the rebalance is completed, please run the query in Step-12 and see all the old disks are marked as header_status FORMER and mount_status CLOSED
 19) You can keep them for few days before removing. Now all the ASM diskgroups are migrated to the new SAN. 
-20) I can give you the steps for removing in a separate update if you need it. 
+
