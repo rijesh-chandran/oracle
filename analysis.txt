@@ -1,0 +1,37 @@
+.
+ANALYSIS SUMMARY
+================
+
+Customer has 2 node RAC [12.1.0.2] running on Linux [RHEL7.9] Nodes ntr-db3, ntr-db4
+They are unable to start CRS second node ntr-db4
+The crs startup is giving following:
+
+[oracle@ntr-db4 bin]$ sudo ./crsctl start crs -wait
+CRS-4123: Starting Oracle High Availability Services-managed resources
+CRS-2672: Attempting to start 'ora.mdnsd' on 'ntr-db4'
+CRS-2672: Attempting to start 'ora.evmd' on 'ntr-db4'
+CRS-2676: Start of 'ora.mdnsd' on 'ntr-db4' succeeded
+CRS-2676: Start of 'ora.evmd' on 'ntr-db4' succeeded
+CRS-2672: Attempting to start 'ora.gpnpd' on 'ntr-db4'
+CRS-2676: Start of 'ora.gpnpd' on 'ntr-db4' succeeded
+CRS-2672: Attempting to start 'ora.gipcd' on 'ntr-db4'
+CRS-2676: Start of 'ora.gipcd' on 'ntr-db4' succeeded
+CRS-2672: Attempting to start 'ora.cssdmonitor' on 'ntr-db4'
+CRS-2676: Start of 'ora.cssdmonitor' on 'ntr-db4' succeeded
+CRS-2672: Attempting to start 'ora.cssd' on 'ntr-db4'
+CRS-2672: Attempting to start 'ora.diskmon' on 'ntr-db4'
+CRS-2676: Start of 'ora.diskmon' on 'ntr-db4' succeeded
+ 
+CRS-2883: Resource 'ora.cssdmonitor' failed during Clusterware stack start.
+CRS-4406: Oracle High Availability Services synchronous start failed.
+CRS-4000: Command Start failed, or completed with errors.
+
+[oracle@ntr-db4 bin]$
+
+
+Following has been performed:
+-----------------------------
+
+1- Checked the Public and Private Interconnect and they are able to ping each other
+2- Checked the ASM disks (ASMLib) and disks are visible on both nodes
+3- We ran the cluvfy and it rules out any network issues:

@@ -1,0 +1,52 @@
+Memory:
+	sar -r -f /var/log/sa/sa31 -s 10:00:00
+	
+Swap:
+	sar -S -f /var/log/sa/sa31 -s 10:00:00  # Swap mem usage%, mem free%
+	sar -W -f /var/log/sa/sa31 -s 10:00:00  # Swap page in/s, page out/s
+	sar -B -f /var/log/sa/sa31 -s 10:00:00  # Swap pages swap-in kb/s, pages swap-out kb/s 
+	
+CPU:
+	sar -u -f /var/log/sa/sa31 -s 10:00:00
+
+HugePages/Memory Pages:
+
+	sar -H -f 
+	sar -R
+
+Run Queue:
+
+	sar -q
+
+Contxt Switches:
+
+	sar -w
+	
+DISK IO:
+
+    sar -p -d  -f /var/log/sa/sa31 -s 10:00:00 # Per device
+    sar    -b  -f /var/log/sa/sa31 -s 10:00:00 # Total tps, rtps, wtps 
+	
+Network:
+
+sar -n DEV -f /var/log/sa/sa31 -s 10:00:00 
+
+KEYWORD can be one of the following options:
+
+DEV: Displays vital statistics for network devices
+EDEV: Display failure statistics for network devices
+NFS: Displays Network File System (NFS) client activities
+NFSD: Displays NFS server activities
+SOCK: Displays the sockets that are in use for IPv4
+IP: Displays IPv4 network traffic
+EIP: Displays IPv4 network errors
+ICMP: Displays ICMPv4 network traffic
+EICMP: Displays ICMPv4 network errors
+TCP: Displays TCPv4 network traffic
+ETCP: Displays TCPv4 network errors
+UDP: Displays UDPv4 network traffic
+SOCK6, IP6, EIP6, ICMP6, and UDP6: Displays IPv6
+network information
+ALL: Displays all of the preceding information
+
+https://docs.rackspace.com/docs/use-sar-to-monitor-resources-in-linux	

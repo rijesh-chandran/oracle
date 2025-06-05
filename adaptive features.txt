@@ -1,0 +1,2 @@
+http://kerryosborne.oracle-guy.com/2013/12/09/12c-adaptive-optimization-part-2-hints/
+=https://antognini.ch/2016/10/adaptive-query-optimization-configuration-parameters-preferences-and-fix-controls/

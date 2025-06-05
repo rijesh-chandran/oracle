@@ -1,0 +1,43 @@
+RHEL 7
+======
+1. Edit: /etc/default/grub and add transparent_hugepage=never in GRUB_CMDLINE_LINUX like below :
+
+GRUB_CMDLINE_LINUX="crashkernel=auto biosdevname=1 modprobe.blacklist=mpt3sas net.ifnames=0 nomodeset rdblacklist=bfa,lpfc consoleblank=0 transparent_hugepage=never"
+
+2. grub2-editenv - list | grep kernelopts
+
+3. grub2-mkconfig -o /boot/grub2/grub.cfg
+
+4. reboot
+
+
+RHEL 8
+======
+
+grub2-editenv - list | grep kernelopts
+grub2-editenv - set "kernelopts=root=/dev/mapper/rootvg-rootlv ro crashkernel=auto console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300 transparent_hugepage=never"
+grub2-editenv - list | grep kernelopts
+
+e.g:
+
+[root@AGAEALD3001289 grub2]#  cat /sys/kernel/mm/transparent_hugepage/enabled
+[always] madvise never
+[root@AGAEALD3001289 grub2]# grub2-editenv - list | grep kernelopts
+kernelopts=root=/dev/mapper/rootvg-rootlv ro crashkernel=auto console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300
+[root@AGAEALD3001289 grub2]# grub2-editenv - set "kernelopts=root=/dev/mapper/rootvg-rootlv ro crashkernel=auto console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300 transparent_hugepage=never"
+[root@AGAEALD3001289 grub2]# grub2-editenv - list | grep kernelopts
+kernelopts=root=/dev/mapper/rootvg-rootlv ro crashkernel=auto console=tty1 console=ttyS0 earlyprintk=ttyS0 rootdelay=300 transparent_hugepage=never
+[root@AGAEALD3001289 grub2]#
+
+
+
+Add following in /etc/rc.local
+
+echo never > /sys/kernel/mm/redhat_transparent_hugepage/defrag
+
+Then perform:
+
+chmod +x /etc/rc.d/rc.local
+
+
+

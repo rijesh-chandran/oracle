@@ -1,0 +1,158 @@
+PREREQUISITES
+=============
+
+1. Before you proceed, make a backup of GPnP profile on both nodes:
+
+cp -p /u01/app/19.0.0/grid/gpnp/<HOST_NAME>/profiles/peer/profile.xml /home/grid/profile.xml
+
+2. Make sure you capture and store the output of following somewhere on both nodes:
+
+/u01/app/19.0.0/grid/bin/crsctl stat res -t > crsctl_stat_res_t.out
+/u01/app/19.0.0/grid/bin/crsctl stat res -t -init > crsctl_stat_res_t_init.out
+/u01/app/19.0.0/grid/bin/olsnodes -n -s > olsnodes_n_s.out 
+/u01/app/19.0.0/grid/bin/gpnptool get > gpnptool_get.out
+ifconfig -a > ifconfig_a.out
+ip -c -br a > ip_c_br_a.out 
+
+3. Currently we have following interfaces 
+
+hb0bond 10.172.51.0 global cluster_interconnect,asm
+hb1bond 10.172.51.8 global cluster_interconnect,asm
+prodbond 10.172.17.64 global public
+
+and as per our discussion the plan is to:
+
+- re-ip the interface hb0bond to network 10.172.52.0 (10.172.52.1 - Node1, 10.172.52.2  - Node2)
+- re-ip the interface hb1bond to network 10.172.52.8 (10.172.52.9 - Node1, 10.172.52.10 - Node2)
+- the re-ip will be done one interface at a time
+
+Steps for hb0bond/10.172.51.0
+=============================
+
+Perform all steps as root user on Node-1. Make sure you set the PATH variable as below:
+
+export PATH=/u01/app/19.0.0/grid/bin:$PATH
+
+1. Perform following to remove hb0bond/10.172.51.0 network 
+
+-- Stop and remove the ASMNET Listener for ASM network 1
+srvctl stop listener -listener ASMNET1LSNR_ASM
+srvctl update listener -listener ASMNET1LSNR_ASM -asm -remove 
+
+-- Stop and remove the ASM network 1 
+srvctl stop asmnetwork -netnum 1
+srvctl remove asmnetwork -netnum 1 
+
+-- Remove the ASM network 1 interface from cluster
+oifcfg delif -global hb0bond/10.172.51.0
+
+-- Make sure the interface is removed from cluster 
+oifcfg getif -global 
+
+2. Now Sysadmin to re-ip the hb0bond interface with 10.172.52.1 on Node1 and 10.172.52.2 on Node2
+
+3. Ensure you are able to ping these interfaces each other without any packet loss.
+
+Perform following on both nodes and ensure you can ping them: 
+	
+	ping -c 10 -I hb0bond 10.172.52.1
+	ping -c 10 -I hb0bond 10.172.52.2
+	
+4. Perform following to add hb0bond/10.172.52.0 network 
+
+-- Add the hb0bond/10.172.52.0 to cluster
+oifcfg setif -global hb0bond/10.172.52.0:cluster_interconnect,asm	
+
+-- Make sure the interface is added to the cluster:
+oifcfg getif -global 
+
+-- Perform following to add and start the ASM network:
+srvctl add asmnetwork -netnum 1 -subnet 10.172.52.0
+srvctl start asmnetwork -netnum 1
+
+-- Add and start the ASMNET Listener:
+srvctl add listener -listener ASMNET1LSNR_ASM -oraclehome /u01/app/19.0.0/grid -asmlistener -netnum 1
+srvctl start listener -listener ASMNET1LSNR_ASM
+
+5. Run 'crsctl stat res -t' and ensure following resources are online on both cluster nodes:
+
+ora.asmnet1.asmnetwork
+ora.ASMNET1LSNR_ASM.lsnr	
+	
+6. Run following and ensure this change is reflected in the GPnP profile from the output of:
+
+/u01/app/19.0.0/grid/bin/gpnptool get
+
+
+Steps for hb1bond/10.172.51.8
+=============================
+
+Perform all steps as root user on Node-1. Make sure you set the PATH variable as below:
+
+export PATH=/u01/app/19.0.0/grid/bin:$PATH
+
+1. Perform following to remove hb1bond/10.172.51.8 network 
+
+-- Stop and remove the ASMNET Listener for ASM network 2
+srvctl stop listener -listener ASMNET2LSNR_ASM
+srvctl update listener -listener ASMNET2LSNR_ASM -asm -remove 
+
+-- Stop and remove the ASM network 2 
+srvctl stop asmnetwork -netnum 2
+srvctl remove asmnetwork -netnum 2
+
+-- Remove the ASM network 1 interface from cluster
+oifcfg delif -global hb1bond/10.172.51.8
+
+-- Make sure the interface is removed from cluster 
+oifcfg getif -global 
+
+2. Please give the cluster some time (5-6 minutes) to relocate all the HAIP to the available interface hb0bond. Once this relocation is done (in 5-6 minutes) the ifconfig command should not show any binded interfaces on top of hb1bond. Ensure all HAPIs are running on top of hb0bond on both nodes.
+
+ifconfig -a 
+
+3. Now Sysadmin to re-ip the hb1bond interface with 10.172.52.9 on Node1 and 10.172.52.10 on Node2
+
+4. Ensure you are able to ping these interfaces each other without any packet loss.
+
+Perform following on both nodes and ensure you can ping them: 
+	
+	ping -c 10 -I hb1bond 10.172.52.9
+	ping -c 10 -I hb1bond 10.172.52.10
+	
+5. Perform following to add hb1bond/10.172.52.8 network 
+
+-- Add the hb1bond/10.172.52.8 to cluster
+oifcfg setif -global hb1bond/10.172.52.8:cluster_interconnect,asm	
+
+-- Make sure the interface is added to the cluster:
+oifcfg getif -global 
+
+-- Perform following to add and start the ASM network:
+srvctl add asmnetwork -netnum 2 -subnet 10.172.52.8
+srvctl start asmnetwork -netnum 2
+
+-- Add and start the ASMNET Listener:
+srvctl add listener -listener ASMNET2LSNR_ASM -oraclehome /u01/app/19.0.0/grid -asmlistener -netnum 2
+srvctl start listener -listener ASMNET2LSNR_ASM
+
+6. Run 'crsctl stat res -t' and ensure following resources are online on both cluster nodes:
+
+ora.asmnet2.asmnetwork
+ora.ASMNET2LSNR_ASM.lsnr	
+	
+7. Run following and ensure this change is reflected in the GPnP profile from the output of:
+
+/u01/app/19.0.0/grid/bin/gpnptool get
+
+
+Restart the Cluster
+===================
+
+1. You need to restart the cluster for the HAIP to relocate and distribute correctly from hb0bond to hb1bond. 
+
+crsctl stop cluster -all 
+crsctl start cluster -all 
+
+2. Even if you postpone the restart of the cluster, it is still fine and HAIP will be automatically relocated if there is a need. If you choose not to restart the cluster now then you might postpone it to another scheduled window.
+

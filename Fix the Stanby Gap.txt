@@ -1,0 +1,59 @@
+On Primary DB
+=============
+1. Check the status of log_archive parameters:
+
+SQL> set lines 999 pages 999
+SQL> show parameter log_archive_config 
+SQL> show parameter log_archive_dest
+
+2. Identify the standby destination from the above (destination with SERVICE=... )
+
+3. Check the archivelogs generated per thread:
+
+SQL> select thread#,max(sequence#) from v$archived_log group by thread# order by 1;
+
+4. Check the applied archivelog sequence# per thread:
+
+SQL> select thread#,max(sequence#) from v$archived_log where applied='YES' group by thread# order by 1;
+
+On Standby DB
+=============
+5. Check what is the last archivelog sequence received:
+
+SQL> select thread#,max(sequence#) from v$archived_log group by thread# order by 1;
+
+6. Check if the MRP process is running:
+
+SQL> set lines 999 pages 999
+SQL> select inst_id,process,status,client_process,thread#,sequence#,block#,blocks from gv$managed_standby order by 1,2;
+
+7. If MRP is not running, then restart it using:
+
+SQL> alter database recover managed standby database nodelay disconnect;
+
+8. Check what is the sequence# and thread# MRP is trying to apply or waiting to be received
+
+Fixing
+======
+
+If there is a gap between the generated archivelog on the Primary (Step-3) and Standby (Step-5) then 
+
+1) Ensure the network connection between Primary and Standby are working 
+2) If Network is working then:
+
+a) Disable the archive log destination which does log shipping (from Step-2) and re-enable it on Primary:
+
+SQL> alter system set log_archive_dest_state_2=DEFER;
+
+b) Perform few log switches:
+
+SQL> alter system archive log current;
+SQL> alter system archive log current;
+SQL> alter system archive log current;
+
+c) Check the Primary alert.log and see if the archivelog shipping is generating any errors
+d) Identify and fix any listener issues/erros if any 
+e) Check the standby alert.log and see if the archive logs are received 
+f) Check if the MRP is applying the logs (Step-6)
+
+--- END ---

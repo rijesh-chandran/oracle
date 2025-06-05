@@ -1,0 +1,58 @@
+Hi Pradeep,
+
+Here is a working method you can use on RHEL7 or OEL7. You need to follow below steps:
+
+1. As root user create a file named dbora.service in /etc/systemd/system/
+
+touch /etc/systemd/system/dbora.service
+
+2. Modify the following content and include your ORACLE_HOME instead of "/u01/app/oracle/product/19.0.0/dbhome_2" (in my case this is the ORACLE_HOME) and add the modified content in '/etc/systemd/system/dbora.service'
+
+NOTE: do not include lines with "~~~~~~"
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+[Unit]
+Description=Oracle Database Start/Stop Service
+After=syslog.target network.target local-fs.target remote-fs.target
+
+[Service]
+LimitNOFILE=65536
+LimitNPROC=16384
+LimitSTACK=32M
+LimitMEMLOCK=infinity
+LimitCORE=infinity
+LimitDATA=infinity
+
+Type=simple
+User=oracle
+Group=oinstall
+Restart=no
+ExecStartPre=/bin/rm -rf /u01/app/oracle/product/19.0.0/dbhome_2/listener.log
+ExecStartPre=/bin/rm -rf /u01/app/oracle/product/19.0.0/dbhome_2/startup.log
+ExecStart=/bin/bash /u01/app/oracle/product/19.0.0/dbhome_2/bin/dbstart /u01/app/oracle/product/19.0.0/dbhome_2
+RemainAfterExit=yes
+ExecStop=/bin/rm -rf /u01/app/oracle/product/19.0.0/dbhome_2/shutdown.log
+ExecStop=/bin/bash /u01/app/oracle/product/19.0.0/dbhome_2/bin/dbshut /u01/app/oracle/product/19.0.0/dbhome_2
+TimeoutStopSec=5min
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=graphical.target
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+3. Edit your /etc/oratab file and enable all databases that you need to enable autostart with "Y" (instead of N) at the end. Like below:
+
+ORCL:/u01/app/oracle/product/19.0.0/dbhome_2:Y
+
+4. As root, enable the dbora service:
+
+systemctl enable dbora.service
+
+This will create necessary symlinks in /etc/systemd/system/multi-user.target.wants/ and /etc/systemd/system/graphical.target.wants/ to start the service in run levels 3 and 5 
+
+5. Once this is done your database (for whichever you have enabled autostart=Y in /etc/oratab) should be started automatically post reboot of the server.
+
+Please let me know if you are facing any issues.
+
+Thanks,
+Rijesh Chandran

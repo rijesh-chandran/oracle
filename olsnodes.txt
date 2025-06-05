@@ -1,0 +1,29 @@
+[oracle@node1 ~]$ olsnodes
+node1
+node2
+[oracle@node1 ~]$ olsnodes -n
+node1	1
+node2	2
+[oracle@node1 ~]$ olsnodes -l -p
+node1	192.168.1.101
+[oracle@node1 ~]$ olsnodes -i
+node1	node1-vip
+node2	node2-vip
+[oracle@node1 ~]$ olsnodes -i node1
+node1	node1-vip
+[oracle@node1 ~]$ olsnodes -l
+node1
+pl
+[oracle@node1 ~]$ olsnodes -s
+node1	Active
+node2	Active
+[oracle@node1 ~]$ olsnodes -l -s
+node1	Active
+[oracle@node1 ~]$ olsnodes -t
+node1	Unpinned
+node2	Unpinned
+[oracle@node1 ~]$ olsnodes -l -t
+node1	Unpinned
+[oracle@node1 ~]$ olsnodes -c
+rac-scan
+[oracle@node1 ~]$

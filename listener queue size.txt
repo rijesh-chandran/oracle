@@ -1,0 +1,5 @@
+https://github.com/envoyproxy/envoy/issues/9659
+https://www.getpagespeed.com/server-setup/nginx/maximizing-nginx-performance-a-comprehensive-guide-to-tuning-the-backlog-and-net-core-somaxconn-parameters
+2928964_1
+oracle listener queue linux SOMAXCONN
+https://access.redhat.com/solutions/6439141

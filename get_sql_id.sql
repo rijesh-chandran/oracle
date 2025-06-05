@@ -1,0 +1,1 @@
+select dbms_sql_translator.sql_id('SELECT * FROM SCOTT.EMP') from dual;

@@ -1,0 +1,2 @@
+Things to Consider to Avoid Database Performance Problems on 19c 
+2773012

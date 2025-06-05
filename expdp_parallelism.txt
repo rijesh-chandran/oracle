@@ -1,0 +1,30 @@
+"where mod(dbms_rowid.rowid_block_number(rowid), ${chunk}) = ${i}"
+
+1) Excluding the table from the expdp and creating it on the target with CTAS. Example with DoP = 4:
+
+create table <NEW TABLE>
+parallel 4
+as select /*+ parallel(<table_name>, 4) */ *
+from table_name@db_link_to_source_db;
+
+2) Exporting the table PDDTA.F0911 with multiple data pump calls:
+
+#!/bin/bash
+chunk=4
+for ((i=0;i<=3;i++));
+do
+expdp USERNAME/Password@DB_NAME TABLES=F0911 QUERY=F0911:\"where mod\(dbms_rowid.rowid_block_number\(rowid\)\, ${chunk}\) = ${i}\" directory=DMP dumpfile=lob_test_${i}.dmp logfile= log_test_${i}.log &
+echo $i
+done
+
+Then you can import it the following way:
+
+#!/bin/bash
+chunk=4
+for ((i=0;i<=3;i++));
+do
+impdp USERNAME/Password@DB_NAME directory=DMP REMAP_TABLE=F0911:F0911 remap_schema=PDDTA:PDDTA dumpfile= lob_test_${i}.dmp logfile=TABLE_imp_log_test_${i}.log DATA_OPTIONS=DISABLE_APPEND_HINT CONTENT=DATA_ONLY &
+sleep 60
+done
+
+Ref.: https://www.linkedin.com/pulse/optimising-lob-export-import-performance-via-oracle-datapump-arya/
