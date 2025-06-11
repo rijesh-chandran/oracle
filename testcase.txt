@@ -1,0 +1,27 @@
+SELECT r.program_id,
+r.short_name,
+r.long_name,
+r.program_cycle_id,
+r.CYCLE
+FROM (SELECT p.program_id,
+p.short_name,
+p.long_name,
+pc1.program_cycle_id,
+pc1.CYCLE,
+p.number_of_cycles AS var_rows
+FROM programs p,
+programcycles pc,
+programcycles pc1
+WHERE p.program_id = pc1.program_id
+AND pc.program_id = pc1.program_id
+AND pc.CYCLE >= pc1.CYCLE
+AND pc.program_cycle_id = 3957
+ORDER BY pc1.CYCLE desc) r
+WHERE rownum <= ( CASE
+WHEN var_rows = 2 THEN 5
+WHEN var_rows = 3 THEN 7
+WHEN var_rows = 12 THEN 13
+ELSE 0
+END )
+AND r.program_cycle_id IN (SELECT program_cycle_id
+FROM cyclestatistics) ;
