@@ -9,7 +9,7 @@ REM Run monitor script periodically to confirm rman is progessing
 REM -------------------------------
 
 alter session set nls_date_format='dd-mon-rr hh24:mi:ss';
-verify off
+set verify off
 set lines 1500
 set pages 100
 col CLI_INFO format a10
