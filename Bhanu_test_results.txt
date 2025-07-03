@@ -1,0 +1,140 @@
+[oracle@oel891 ~]$ sqlplus / as sysdba
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu Jul 3 15:15:34 2025
+Version 19.22.0.0.0
+
+Copyright (c) 1982, 2023, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.22.0.0.0
+
+SQL> show parameter cluster
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+cdb_cluster                          boolean     FALSE
+cdb_cluster_name                     string
+cluster_database                     boolean     TRUE
+cluster_database_instances           integer     2
+cluster_interconnects                string
+SQL>
+SQL>
+SQL> alter system set cluster_database=FALSE scope=spfile;
+
+System altered.
+
+SQL> exit
+Disconnected from Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.22.0.0.0
+[oracle@oel891 ~]$ srvctl stop database -d CDB -o immediate;
+[oracle@oel891 ~]$ srvctl start instance -d CDB -i CDB1 -o mount
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$ nid TARGET=sys/Oracle123@CDB DBNAME=CDBN logfile=/tmp/nid.log PDB=ALL
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$ s
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu Jul 3 15:17:45 2025
+Version 19.22.0.0.0
+
+Copyright (c) 1982, 2023, Oracle.  All rights reserved.
+
+Connected to an idle instance.
+
+SQL> quit
+Disconnected
+[oracle@oel891 ~]$ s
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu Jul 3 15:17:52 2025
+Version 19.22.0.0.0
+
+Copyright (c) 1982, 2023, Oracle.  All rights reserved.
+
+Connected to an idle instance.
+
+SQL> startup mount
+ORACLE instance started.
+
+Total System Global Area 4949275864 bytes
+Fixed Size                  9188568 bytes
+Variable Size            1124073472 bytes
+Database Buffers         3808428032 bytes
+Redo Buffers                7585792 bytes
+ORA-01103: database name 'CDBN' in control file is not 'CDB'
+
+
+SQL> alter system set db_name='CDBN' scope=spfile sid='*';
+
+System altered.
+
+SQL> shut abort
+ORACLE instance shut down.
+SQL> startup mount
+ORACLE instance started.
+
+Total System Global Area 4949275864 bytes
+Fixed Size                  9188568 bytes
+Variable Size            1124073472 bytes
+Database Buffers         3808428032 bytes
+Redo Buffers                7585792 bytes
+Database mounted.
+SQL> alter database open resetlogs;
+
+
+
+
+NID LOG:
+
+
+[oracle@oel891 ~]$ cat /tmp/nid.log
+
+DBNEWID: Release 19.0.0.0.0 - Production on Thu Jul 3 15:17:09 2025
+
+Copyright (c) 1982, 2019, Oracle and/or its affiliates.  All rights reserved.
+
+Connected to database CDB (DBID=2319686549)
+
+Connected to server version 19.22.0
+
+Control Files in database:
+    +DATA/CDB/CONTROLFILE/current.287.1203083029
+    +RECO/CDB/CONTROLFILE/current.261.1203083031
+
+Changing database ID from 2319686549 to 4075413369
+Changing database name from CDB to CDBN
+    Control File +DATA/CDB/CONTROLFILE/current.287.1203083029 - modified
+    Control File +RECO/CDB/CONTROLFILE/current.261.1203083031 - modified
+    Datafile +DATA/CDB/DATAFILE/system.283.120308287 - dbid changed, wrote new name
+    Datafile +DATA/CDB/DATAFILE/sysaux.284.120308293 - dbid changed, wrote new name
+    Datafile +DATA/CDB/DATAFILE/undotbs1.285.120308296 - dbid changed, wrote new name
+    Datafile +DATA/CDB/86B637B62FE07A65E053F706E80A27CA/DATAFILE/system.291.120308421 - dbid changed, wrote new name
+    Datafile +DATA/CDB/86B637B62FE07A65E053F706E80A27CA/DATAFILE/sysaux.292.120308421 - dbid changed, wrote new name
+    Datafile +DATA/CDB/DATAFILE/users.286.120308296 - dbid changed, wrote new name
+    Datafile +DATA/CDB/86B637B62FE07A65E053F706E80A27CA/DATAFILE/undotbs1.293.120308421 - dbid changed, wrote new name
+    Datafile +DATA/CDB/DATAFILE/undotbs2.295.120308451 - dbid changed, wrote new name
+    Datafile +DATA/CDB/36E4BB8A17ECB3E4E063DE01A8C09AD1/DATAFILE/system.300.120308700 - dbid changed, wrote new name
+    Datafile +DATA/CDB/36E4BB8A17ECB3E4E063DE01A8C09AD1/DATAFILE/sysaux.301.120308700 - dbid changed, wrote new name
+    Datafile +DATA/CDB/36E4BB8A17ECB3E4E063DE01A8C09AD1/DATAFILE/undotbs1.299.120308700 - dbid changed, wrote new name
+    Datafile +DATA/CDB/36E4BB8A17ECB3E4E063DE01A8C09AD1/DATAFILE/undo_2.303.120308714 - dbid changed, wrote new name
+    Datafile +DATA/CDB/36E4BB8A17ECB3E4E063DE01A8C09AD1/DATAFILE/users.304.120308715 - dbid changed, wrote new name
+    Datafile +DATA/CDB/TEMPFILE/temp.290.120308306 - dbid changed, wrote new name
+    Datafile +DATA/CDB/36E415C1650F290FE063DE01A8C0B6BD/TEMPFILE/temp.294.120308425 - dbid changed, wrote new name
+    Datafile +DATA/CDB/36E4BB8A17ECB3E4E063DE01A8C09AD1/TEMPFILE/temp.302.120308706 - dbid changed, wrote new name
+    Control File +DATA/CDB/CONTROLFILE/current.287.1203083029 - dbid changed, wrote new name
+    Control File +RECO/CDB/CONTROLFILE/current.261.1203083031 - dbid changed, wrote new name
+    Instance shut down
+
+Database name changed to CDBN.
+Modify parameter file and generate a new password file before restarting.
+Database ID for database CDBN changed to 4075413369.
+All previous backups and archived redo logs for this database are unusable.
+Database is not aware of previous backups and archived logs in Recovery Area.
+Database has been shutdown, open database with RESETLOGS option.
+Succesfully changed database name and ID.
+DBNEWID - Completed succesfully.
+
+[oracle@oel891 ~]$
+
