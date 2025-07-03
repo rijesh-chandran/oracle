@@ -1,0 +1,106 @@
+When USE_SID_AS_SERVICE_LISTENER is not set
+-------------------------------------------
+
+[oracle@oel891 ~]$ tail -1 /u01/app/19.0.0/grid/network/admin/listener.ora
+## USE_SID_AS_SERVICE_LISTENER=ON
+[oracle@oel891 ~]$ ssh oel892 tail -1 /u01/app/19.0.0/grid/network/admin/listener.ora
+## USE_SID_AS_SERVICE_LISTENER=ON
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$ srvctl start listener -l LISTENER
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$ sqlplus system/Oracle123@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oel891-vip)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SID=CDB1)))
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu Jul 3 14:40:27 2025
+Version 19.22.0.0.0
+
+Copyright (c) 1982, 2023, Oracle.  All rights reserved.
+
+Last Successful login time: Thu Jul 03 2025 14:38:12 +05:30
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.22.0.0.0
+
+SQL> show con_name
+
+CON_NAME
+------------------------------
+CDB$ROOT
+SQL>
+SQL> show parameter instance_name
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+instance_name                        string      CDB1
+SQL>
+SQL> quit
+Disconnected from Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.22.0.0.0
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$ sqlplus system/Oracle123@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oel892-vip)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SID=CDB2)))
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu Jul 3 14:41:08 2025
+Version 19.22.0.0.0
+
+Copyright (c) 1982, 2023, Oracle.  All rights reserved.
+
+Last Successful login time: Thu Jul 03 2025 14:40:27 +05:30
+
+Connected to:
+Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.22.0.0.0
+
+SQL> show con_name
+
+CON_NAME
+------------------------------
+CDB$ROOT
+SQL> show parameter instance_name
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+instance_name                        string      CDB2
+SQL> exit
+Disconnected from Oracle Database 19c Enterprise Edition Release 19.0.0.0.0 - Production
+Version 19.22.0.0.0
+[oracle@oel891 ~]$
+
+When USE_SID_AS_SERVICE_LISTENER is set
+---------------------------------------
+
+[oracle@oel891 ~]$ vi /u01/app/19.0.0/grid/network/admin/listener.ora
+[oracle@oel891 ~]$ tail -1 /u01/app/19.0.0/grid/network/admin/listener.ora
+USE_SID_AS_SERVICE_LISTENER=ON
+[oracle@oel891 ~]$ ssh oel892 tail -1 /u01/app/19.0.0/grid/network/admin/listener.ora
+USE_SID_AS_SERVICE_LISTENER=ON
+[oracle@oel891 ~]$ srvctl stop listener -l LISTENER
+[oracle@oel891 ~]$ srvctl start listener -l LISTENER
+[oracle@oel891 ~]$
+[oracle@oel891 ~]$ sqlplus system/Oracle123@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oel891-vip)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SID=CDB1)))
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu Jul 3 14:43:10 2025
+Version 19.22.0.0.0
+
+Copyright (c) 1982, 2023, Oracle.  All rights reserved.
+
+ERROR:
+ORA-12514: TNS:listener does not currently know of service requested in connect
+descriptor
+
+
+Enter user-name: ^C
+[oracle@oel891 ~]$ sqlplus system/Oracle123@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oel892-vip)(PORT=1521))(CONNECT_DATA=(SERVER=DEDICATED)(SID=CDB2)))
+
+SQL*Plus: Release 19.0.0.0.0 - Production on Thu Jul 3 14:43:17 2025
+Version 19.22.0.0.0
+
+Copyright (c) 1982, 2023, Oracle.  All rights reserved.
+
+ERROR:
+ORA-12514: TNS:listener does not currently know of service requested in connect
+descriptor
+
+
+Enter user-name: ^C
+[oracle@oel891 ~]$
